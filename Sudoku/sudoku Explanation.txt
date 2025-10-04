@@ -1,0 +1,157 @@
+Sudoku Game in Python (Tkinter) — Detailed Explanation
+------------------------------------------------------
+
+This program is a fully functional Sudoku game built with Python's Tkinter GUI library. 
+It consists of two main parts: a Sudoku puzzle generator and the graphical game interface. 
+Below is a walkthrough of the important parts of the code and their purpose.
+
+---
+
+Imports and Constants
+----------------------
+import random
+import time
+import tkinter as tk
+from tkinter import messagebox
+
+- random: used to shuffle numbers and generate random puzzles.
+- time: for tracking elapsed time during gameplay (the timer feature).
+- tkinter: standard Python GUI toolkit.
+- messagebox: Tkinter popups for alerts, win/lose messages.
+
+GRID_SIZE = 9
+BOX_SIZE = 3
+
+- GRID_SIZE defines the Sudoku board size (9x9).
+- BOX_SIZE is 3, since Sudoku consists of 3x3 boxes.
+
+---
+
+Class: SudokuGenerator
+----------------------
+This class is responsible for generating Sudoku puzzles and ensuring each puzzle has a unique solution.
+
+__init__(self, seed=None):
+- Initializes with a random number generator (RNG). A seed allows reproducible puzzles.
+
+generate_full_board(self):
+- Creates a fully solved 9x9 Sudoku board using backtracking.
+
+_find_empty(self, board):
+- Returns the next empty cell (value 0). Used during puzzle solving and generation.
+
+_valid(self, board, r, c, val):
+- Checks if placing 'val' in row r, column c is valid according to Sudoku rules (no repeats in row, col, or 3x3 box).
+
+_fill_board(self, board):
+- Backtracking function that fills the board with valid numbers until it is solved.
+
+_copy(self, board):
+- Creates a deep copy of the board for safe manipulation.
+
+_count_solutions(self, board, limit=2):
+- Checks how many solutions a board has. Stops at 'limit'. Ensures uniqueness of generated puzzles.
+
+generate_puzzle(self, difficulty="medium"):
+- Generates a puzzle by removing numbers from a full solution until the target number of clues (givens) is reached.
+- Difficulty determines how many cells remain filled:
+  - easy: ~40–45 clues
+  - medium: ~32–38
+  - hard: ~26–31
+  - expert: ~22–26
+- Uses symmetry to remove numbers in pairs and ensures uniqueness by checking with _count_solutions.
+
+---
+
+Class: SudokuApp
+-----------------
+This is the GUI application class that manages the Tkinter interface and game logic.
+
+Constants like CELL_BG, CELL_BG_SELECTED, etc.:
+- Define colors for normal cells, locked cells (givens), selected cell, conflicts, etc.
+
+__init__(self, root):
+- Sets up game variables (puzzle, solution, locked cells, notes, undo/redo stacks, timer).
+- Calls _build_ui() to create the GUI.
+- Starts a new game with "medium" difficulty.
+- Starts the timer loop.
+
+_build_ui(self):
+- Builds the Tkinter interface:
+  - Left side: 9x9 Sudoku grid using Frames and Labels.
+  - Right side: Controls (timer, keypad buttons 1–9, erase, hint, check, new game, undo/redo, and toggles).
+- Binds mouse clicks to cell selection and keyboard keys to input.
+
+format_time(self, seconds):
+- Converts seconds into MM:SS format for the timer.
+
+_tick_timer(self):
+- Updates the timer label every 500ms if the game is running.
+
+new_game(self, difficulty="medium"):
+- Generates a new puzzle and solution.
+- Resets values, notes, undo/redo, and timer.
+
+select(self, r, c):
+- Selects a cell when clicked.
+
+_record_action(self, ...):
+- Saves an action for undo/redo functionality.
+
+input_number(self, n):
+- Inputs a number into the selected cell (unless it’s locked).
+- In pencil mode: adds/removes notes instead of final values.
+- Records the action for undo/redo.
+
+erase(self):
+- Erases the selected cell’s value or notes.
+
+undo(self), redo(self):
+- Manage undo/redo stacks to revert or reapply changes.
+
+_on_key(self, event):
+- Keyboard support for numbers, arrow keys for navigation, and delete for erasing.
+
+is_conflict(self, r, c, val):
+- Checks whether a value conflicts with others in its row, column, or 3x3 box.
+
+refresh_view(self):
+- Updates the GUI grid according to the current state:
+  - Cell background highlights (row, col, box of selection).
+  - Conflict highlighting if enabled.
+  - Shows either number, notes, or blank.
+
+check_solution(self):
+- Checks if the board is solved correctly.
+- Warns if empty cells exist.
+- If solved correctly, stops the timer and shows completion message with time.
+
+hint(self):
+- Randomly fills one empty cell with its correct value from the solution.
+
+---
+
+Main function
+-------------
+def main():
+    root = tk.Tk()
+    app = SudokuApp(root)
+    root.mainloop()
+
+- Creates the Tkinter root window.
+- Initializes SudokuApp (which builds the game).
+- Starts Tkinter’s event loop.
+
+if __name__ == "__main__":
+    main()
+
+- Ensures the game runs when the script is executed directly.
+
+---
+
+Summary
+--------
+This program is a self-contained Sudoku game built with Tkinter. 
+It can generate random puzzles of varying difficulties, ensures unique solutions, and provides a user-friendly GUI.
+Features include a timer, pencil mode, undo/redo, conflict highlighting, hints, and a solution checker. 
+It is a complete, standalone application requiring only Python 3.x without external libraries.
